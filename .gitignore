@@ -1,2 +1,9 @@
-.env
-node_modules/
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# Backend dependencies (if using Node.js backend)
+backend/node_modules
+backend/.env

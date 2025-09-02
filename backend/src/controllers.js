@@ -13,6 +13,7 @@ export const handleAsk = async (req, res) => {
 
   try {
     const answer = await askVertexAI({ question });
+    console.log("Answer from Vertex AI:", answer);
     res.json({ answer });
   } catch (error) {
     console.error("Error occurred while asking Vertex AI:", error);

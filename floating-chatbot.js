@@ -19,7 +19,9 @@
       </div>
 
       <!-- Chat Window -->
-      <div id="chat-window" style="position: absolute; bottom: 70px; right: 0; width: 350px; height: 500px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: none; overflow: hidden; border: 1px solid #e5e7eb;">
+  <div id="chat-window" style="position: fixed; bottom: 0; right: 0; width: 70vw; max-width: 100vw; height: 100vh; background: white; border-radius: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: none; overflow: hidden; border: none; z-index: 10001;">
+  <!-- Minimize Button -->
+  <button id="chat-toggle-size" style="position: absolute; top: 16px; right: 16px; background: #e5e7eb; border: none; border-radius: 8px; padding: 6px 12px; font-size: 14px; cursor: pointer; z-index: 10002;">Minimize</button>
         <!-- Header -->
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px; display: flex; align-items: center; justify-content: space-between;">
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -48,7 +50,7 @@
                 <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div>
                 <span style="font-size: 11px; font-weight: 500; color: #6b7280;">AI Assistant</span>
               </div>
-              <div style="font-size: 14px; color: #374151;">Hi! I'm your AI assistant. Ask me anything about this page! 🤖</div>
+              <div style="font-size: 14px; color: #374151;">Hi! I'm your AI assistant. Ask me anyhing about this page! 🤖</div>
             </div>
           </div>
         </div>
@@ -121,10 +123,33 @@
       }, 300);
     } else {
       chatWindow.style.display = "block";
-      chatWindow.style.animation = "chatSlideIn 0.3s ease-out";
+    chatWindow.style.width = "100vw";
+    chatWindow.style.height = "500px";
+      chatWindow.style.borderRadius = "0";
       isOpen = true;
       chatInput.focus();
     }
+  // Minimize chat window to short width view
+    // Toggle chat window width between full and minimized
+    let isMinimized = false;
+    function toggleChatWidth() {
+      if (isMinimized) {
+        chatWindow.style.width = "70vw";
+        chatWindow.style.borderRadius = "0";
+        document.getElementById("chat-toggle-size").textContent = "Minimize";
+        isMinimized = false;
+      } else {
+        chatWindow.style.width = "400px";
+        chatWindow.style.borderRadius = "20px";
+        document.getElementById("chat-toggle-size").textContent = "Maximize";
+        isMinimized = true;
+      }
+    }
+
+    // Add event listener for minimize/maximize button
+    const chatToggleSize = document.getElementById("chat-toggle-size");
+    chatToggleSize.addEventListener("click", toggleChatWidth);
+  // Remove duplicate minimize button logic
   }
 
   // Add message to chat
@@ -139,18 +164,30 @@
 
     if (sender === "user") {
       messageDiv.innerHTML = `
-        <div style="max-width: 280px; padding: 12px 16px; border-radius: 18px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; box-shadow: 0 2px 8px rgba(59,130,246,0.3); font-size: 14px;">
+        <div style="max-width: 70vw; max-width: 100vw; padding: 12px 16px; border-radius: 18px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; box-shadow: 0 2px 8px rgba(59,130,246,0.3); font-size: 14px;">
           ${text}
         </div>
       `;
     } else {
+      // Parse * as bullet points and ``` as code blocks
+      let parsedText = text
+        // Code blocks: replace ```code``` with styled block and horizontal scroll
+        .replace(/```([\s\S]*?)```/g, (match, code) => `<div style='background:#f4f4f4;border-radius:6px;padding:8px 10px;margin:8px 0;font-family:monospace;white-space:pre;overflow-x:auto;'>${code}</div>`) 
+        // Bullet points: replace lines starting with *
+        .replace(/^\s*\*\s+(.*)$/gm, '<li>$1</li>');
+
+      // If there are <li> tags, wrap them in a <ul>
+      if (/<li>/.test(parsedText)) {
+        parsedText = `<ul style='margin:8px 0 8px 18px;padding:0;'>${parsedText}</ul>`;
+      }
+
       messageDiv.innerHTML = `
-        <div style="max-width: 280px; padding: 12px 16px; border-radius: 18px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #10b981;">
+        <div style="max-width: 70vw; max-width: 100vw; padding: 12px 16px; border-radius: 18px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.07); border-left: 4px solid #10b981;">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
             <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div>
             <span style="font-size: 11px; font-weight: 500; color: #6b7280;">AI Assistant</span>
           </div>
-          <div style="font-size: 14px; color: #374151;">${text}</div>
+          <div style="font-size: 14px; color: #374151; white-space: pre-wrap; background: #fff; border-radius: 8px; padding: 8px 10px; margin-top: 6px;">${parsedText}</div>
         </div>
       `;
     }
@@ -201,7 +238,7 @@
 
     try {
       // Get page content
-      const pageContent = document.body.innerText || "";
+      const pageContent = document.documentElement.outerHTML || "";
 
       const response = await fetch("http://localhost:5001/api/ask", {
         method: "POST",

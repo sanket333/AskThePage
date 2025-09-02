@@ -4,7 +4,9 @@ import { askVertexAI } from "./services.js";
 
 export const handleAsk = async (req, res) => {
   // Expecting the frontend to send an object with context and question
-  const { question } = req.body;
+  const { question, pageContent: page_content } = req.body;
+    // Log the received page content for debugging
+    console.log('Received page_content:', page_content);
 
   // Basic validation to ensure we have what we need
   if (!question) {
@@ -12,7 +14,7 @@ export const handleAsk = async (req, res) => {
   }
 
   try {
-    const answer = await askVertexAI({ question });
+    const answer = await askVertexAI({ question,page_content });
     console.log("Answer from Vertex AI:", answer);
     res.json({ answer });
   } catch (error) {

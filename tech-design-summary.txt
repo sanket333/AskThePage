@@ -1,0 +1,33 @@
+Tech Design and Data Flow Summary
+=================================
+
+Frontend (Chrome Extension & Chatbot):
+- Chrome extension injects a floating chatbot UI into web pages.
+- Users interact with the chatbot, asking questions about the current page.
+- The chatbot collects page content (HTML or text) and user questions.
+- Requests are sent to the backend via HTTP POST.
+
+Backend (Node.js/Express):
+- Receives requests containing the question and page content.
+- Uses Vertex AI (Google Gemini model) to answer questions based on the provided context.
+- Handles chat history for stateful conversations.
+- Chunks large page content to avoid model token limits.
+- Returns the AI-generated answer to the frontend.
+
+Data Flow:
+----------
+1. User opens the chatbot and asks a question.
+2. Chatbot extracts the current page’s content (HTML or text).
+3. Chatbot sends a POST request to the backend with:
+   - question: The user’s query.
+   - page_content: Extracted page content.
+   - history: Previous chat messages (for context).
+4. Backend receives the request, chunks content if needed, and calls Vertex AI.
+5. Backend sends the AI’s answer back to the frontend.
+6. Chatbot displays the answer, formatting lists and code as needed.
+
+Key Technologies:
+-----------------
+- Frontend: JavaScript, Chrome Extension APIs, DOM manipulation.
+- Backend: Node.js, Express, Vertex AI (Google Gemini).
+- Data Exchange: JSON over HTTP (REST API).

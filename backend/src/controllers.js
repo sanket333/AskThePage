@@ -1,20 +1,24 @@
 // backend/src/controllers.js
 
+
 import { askVertexAI } from "./services.js";
 
 export const handleAsk = async (req, res) => {
-  // Expecting the frontend to send an object with context and question
-  const { question, pageContent: page_content } = req.body;
-    // Log the received page content for debugging
-    console.log('Received page_content:', page_content);
+  // Only expect question from frontend
+  const { question } = req.body;
 
-  // Basic validation to ensure we have what we need
+  // Get stored page context from app.locals
+  const page_content = req.app.locals.pageContext ? req.app.locals.pageContext() : "";
+
   if (!question) {
     return res.status(400).json({ error: "Question is required." });
   }
+  if (!page_content) {
+    return res.status(400).json({ error: "Page context not initialized. Please reload the page." });
+  }
 
   try {
-    const answer = await askVertexAI({ question,page_content });
+    const answer = await askVertexAI({ question, page_content });
     console.log("Answer from Vertex AI:", answer);
     res.json({ answer });
   } catch (error) {

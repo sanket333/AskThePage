@@ -9,10 +9,10 @@ const ai = new GoogleGenAI({
   project: 'tc-sandbox-202501',
   location: 'global'
 });
-const model = 'gemini-2.5-flash-lite';
+const model = 'gemini-2.5-flash';
 
-// Set up generation config
-const generationConfig = {
+// Base config for generation
+const baseGenerationConfig = {
   maxOutputTokens: 65535,
   temperature: 1,
   topP: 0.95,
@@ -33,10 +33,7 @@ const generationConfig = {
       category: 'HARM_CATEGORY_HARASSMENT',
       threshold: 'OFF',
     }
-  ],
-  systemInstruction: {
-    parts: [{"text": `You are an assistant. Answer the User's questions based ONLY on the page content provided and conversation history."`}]
-  },
+  ]
 };
 
 
@@ -68,8 +65,16 @@ export const askVertexAI = async ({ question, page_content, history = [] }) => {
   let finalAnswer = '';
   for (let idx = 0; idx < contextChunks.length; idx++) {
     const context = contextChunks[idx];
-    // Add context and question to messages
-    messages.push({ text: `Context: ${context}\nQuestion: ${question}` });
+    // Dynamically set system instruction with context
+    const generationConfig = {
+      ...baseGenerationConfig,
+      systemInstruction: {
+        parts: [{
+          text: `You are an assistant. Answer the user's questions based ONLY on the following page context (HTML):\n${context}\nUse the conversation history to provide relevant answers.`
+        }]
+      }
+    };
+    messages.push({ text: `Question: ${question}` });
     const chat = ai.chats.create({
       model: model,
       config: generationConfig

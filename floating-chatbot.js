@@ -266,8 +266,24 @@
   `;
   document.head.appendChild(style);
 
+
   // Insert chatbot into page
   document.body.insertAdjacentHTML("beforeend", chatbotHTML);
+
+  // Send page context to backend on page load
+  async function sendPageContext() {
+    const pageContent = document.body.innerHTML || "";
+    try {
+      await fetch("http://localhost:5001/api/init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ page_content: pageContent })
+      });
+    } catch (err) {
+      console.error("Failed to send page context to backend", err);
+    }
+  }
+  sendPageContext();
 
   // Get elements
   const chatToggle = document.getElementById("chat-toggle");
@@ -472,13 +488,11 @@ Different header levels are styled appropriately.
     showTyping();
 
     try {
-      // Get page content
-      const pageContent = document.documentElement.outerHTML || "";
-
+      // Only send question to backend
       const response = await fetch("http://localhost:5001/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: message, pageContent }),
+        body: JSON.stringify({ question: message })
       });
 
       const data = await response.json();

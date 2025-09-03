@@ -7,35 +7,40 @@
 
   // Simple markdown parser (inline to avoid CSP issues)
   function parseMarkdown(text) {
-    return text
-      // Code blocks FIRST (before inline code to avoid conflicts)
-      .replace(/```(\w+)?\n?([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
-      
-      // Headers
-      .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-      .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-      .replace(/^# (.*$)/gm, '<h1>$1</h1>')
-      
-      // Bold text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      
-      // Italic text
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      
-      // Inline code (after code blocks)
-      .replace(/`(.*?)`/g, '<code>$1</code>')
-      
-      // Blockquotes
-      .replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>')
-      
-      // Lists - convert lines starting with - or * to list items
-      .replace(/^[-*] (.*)$/gm, '<li>$1</li>')
-      
-      // Numbered lists
-      .replace(/^\d+\. (.*)$/gm, '<li>$1</li>')
-      
-      // Line breaks
-      .replace(/\n/g, '<br>');
+    return (
+      text
+        // Code blocks FIRST (before inline code to avoid conflicts)
+        .replace(
+          /```(\w+)?\n?([\s\S]*?)```/g,
+          '<pre><code class="language-$1">$2</code></pre>'
+        )
+
+        // Headers
+        .replace(/^### (.*$)/gm, "<h3>$1</h3>")
+        .replace(/^## (.*$)/gm, "<h2>$1</h2>")
+        .replace(/^# (.*$)/gm, "<h1>$1</h1>")
+
+        // Bold text
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+
+        // Italic text
+        .replace(/\*(.*?)\*/g, "<em>$1</em>")
+
+        // Inline code (after code blocks)
+        .replace(/`(.*?)`/g, "<code>$1</code>")
+
+        // Blockquotes
+        .replace(/^> (.*)$/gm, "<blockquote>$1</blockquote>")
+
+        // Lists - convert lines starting with - or * to list items
+        .replace(/^[-*] (.*)$/gm, "<li>$1</li>")
+
+        // Numbered lists
+        .replace(/^\d+\. (.*)$/gm, "<li>$1</li>")
+
+        // Line breaks
+        .replace(/\n/g, "<br>")
+    );
   }
 
   // Post-process to wrap consecutive <li> elements in <ul> and clean up code blocks
@@ -43,23 +48,27 @@
     // First, protect code blocks from line break processing
     let codeBlocks = [];
     let codeBlockIndex = 0;
-    
+
     // Extract code blocks and replace with placeholders
-    html = html.replace(/<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/g, (match, content) => {
-      codeBlocks[codeBlockIndex] = match.replace(/<br>/g, '\n'); // Replace <br> with \n in code blocks
-      return `__CODEBLOCK_${codeBlockIndex++}__`;
-    });
-    
+    html = html.replace(
+      /<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/g,
+      (match, content) => {
+        codeBlocks[codeBlockIndex] = match.replace(/<br>/g, "\n"); // Replace <br> with \n in code blocks
+        return `__CODEBLOCK_${codeBlockIndex++}__`;
+      }
+    );
+
     // Wrap consecutive <li> elements in <ul>
-    html = html.replace(/(<li>.*?<\/li>(?:\s*<br>\s*<li>.*?<\/li>)*)/gs, '<ul>$1</ul>')
-               .replace(/<br>\s*(<\/?(?:li|ul)>)/g, '$1')
-               .replace(/(<\/(?:li|ul)>)\s*<br>/g, '$1');
-    
+    html = html
+      .replace(/(<li>.*?<\/li>(?:\s*<br>\s*<li>.*?<\/li>)*)/gs, "<ul>$1</ul>")
+      .replace(/<br>\s*(<\/?(?:li|ul)>)/g, "$1")
+      .replace(/(<\/(?:li|ul)>)\s*<br>/g, "$1");
+
     // Restore code blocks
     codeBlocks.forEach((block, index) => {
       html = html.replace(`__CODEBLOCK_${index}__`, block);
     });
-    
+
     return html;
   }
 
@@ -77,7 +86,7 @@
       </div>
 
       <!-- Chat Window -->
-      <div id="chat-window" style="position: absolute; bottom: 70px; right: 0; width: 350px; height: 500px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: none; overflow: hidden; border: 1px solid #e5e7eb;">
+      <div id="chat-window" style="position: absolute; bottom: 70px; right: 0; width: 350px; height: 518px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: none; overflow: hidden; border: 1px solid #e5e7eb;">
         <!-- Minimize/Maximize Button -->
         <button id="chat-toggle-size" style="position: absolute; top: 16px; right: 60px; background: rgba(0,0,0,0.1); border: none; border-radius: 6px; padding: 6px 8px; font-size: 14px; cursor: pointer; color: white; z-index: 10002; transition: background 0.2s;" title="Maximize">⛶</button>
         <!-- Header -->
@@ -266,7 +275,6 @@
   `;
   document.head.appendChild(style);
 
-
   // Insert chatbot into page
   document.body.insertAdjacentHTML("beforeend", chatbotHTML);
 
@@ -277,7 +285,7 @@
       await fetch("http://localhost:5001/api/init", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ page_content: pageContent })
+        body: JSON.stringify({ page_content: pageContent }),
       });
     } catch (err) {
       console.error("Failed to send page context to backend", err);
@@ -306,7 +314,7 @@
     if (isMaximized) {
       // Restore to normal size (minimize)
       chatWindow.style.width = "350px";
-      chatWindow.style.height = "500px";
+      chatWindow.style.height = "518px";
       chatWindow.style.position = "absolute";
       chatWindow.style.bottom = "70px";
       chatWindow.style.right = "0";
@@ -317,7 +325,7 @@
     } else {
       // Maximize to full width
       chatWindow.style.width = "min(70vw, 800px)";
-      chatWindow.style.height = "min(80vh, 600px)";
+      chatWindow.style.height = "min(80vh, 518px)";
       chatWindow.style.position = "fixed";
       chatWindow.style.bottom = "20px";
       chatWindow.style.right = "20px";
@@ -346,7 +354,7 @@
     } else {
       // Always open in minimized (normal) state
       chatWindow.style.width = "350px";
-      chatWindow.style.height = "500px";
+      chatWindow.style.height = "518px";
       chatWindow.style.position = "absolute";
       chatWindow.style.bottom = "70px";
       chatWindow.style.right = "0";
@@ -361,51 +369,51 @@
         if (chatInput) chatInput.focus();
         isToggling = false;
         // Show markdown test on first open (for testing)
-        if (!window.markdownTestShown) {
-          showMarkdownTest();
-          window.markdownTestShown = true;
-        }
+        //   if (!window.markdownTestShown) {
+        //     showMarkdownTest();
+        //     window.markdownTestShown = true;
+        //   }
       }, 300);
     }
   }
 
   // Test function to demonstrate markdown rendering
-  function showMarkdownTest() {
-    console.log("Showing markdown test with inline parser");
-    const testMarkdown = `**🧪 Markdown Test Response**
+  //   function showMarkdownTest() {
+  //     console.log("Showing markdown test with inline parser");
+  //     const testMarkdown = `**🧪 Markdown Test Response**
 
-Here are the supported formatting features:
+  // Here are the supported formatting features:
 
-### Text Formatting
-- **Bold text** for emphasis
-- *Italic text* for styling
-- \`inline code\` for technical terms
+  // ### Text Formatting
+  // - **Bold text** for emphasis
+  // - *Italic text* for styling
+  // - \`inline code\` for technical terms
 
-### Lists
-1. **Numbered lists** work great
-2. **Bullet points** are supported
-3. **Nested items** display properly
+  // ### Lists
+  // 1. **Numbered lists** work great
+  // 2. **Bullet points** are supported
+  // 3. **Nested items** display properly
 
-### Code Blocks
-\`\`\`javascript
-function greet(name) {
-  console.log("Hello, " + name + "!");
-  return "Welcome!";
-}
-\`\`\`
+  // ### Code Blocks
+  // \`\`\`javascript
+  // function greet(name) {
+  //   console.log("Hello, " + name + "!");
+  //   return "Welcome!";
+  // }
+  // \`\`\`
 
-### Blockquotes
-> This is a blockquote example
-> Perfect for highlighting important information
+  // ### Blockquotes
+  // > This is a blockquote example
+  // > Perfect for highlighting important information
 
-### Headers
-Different header levels are styled appropriately.
+  // ### Headers
+  // Different header levels are styled appropriately.
 
-**Try asking me a question to see real responses!** 🚀`;
+  // **Try asking me a question to see real responses!** 🚀`;
 
-    // Add the test message immediately
-    addMessage(testMarkdown, "bot");
-  }
+  //     // Add the test message immediately
+  //     addMessage(testMarkdown, "bot");
+  //   }
 
   // Add message to chat
   function addMessage(text, sender) {
@@ -427,7 +435,7 @@ Different header levels are styled appropriately.
       // Use inline markdown parser (CSP-friendly)
       let parsedText = parseMarkdown(text);
       parsedText = wrapLists(parsedText);
-      
+
       console.log("Using inline markdown parser");
       console.log("Input:", text.substring(0, 50) + "...");
       console.log("Parsed result:", parsedText.substring(0, 100) + "...");
@@ -492,7 +500,7 @@ Different header levels are styled appropriately.
       const response = await fetch("http://localhost:5001/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: message })
+        body: JSON.stringify({ question: message }),
       });
 
       const data = await response.json();

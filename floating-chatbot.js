@@ -86,7 +86,7 @@
       </div>
 
       <!-- Chat Window -->
-      <div id="chat-window" style="position: absolute; bottom: 70px; right: 0; width: 350px; height: 518px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: none; overflow: hidden; border: 1px solid #e5e7eb;">
+      <div id="chat-window" style="position: absolute; bottom: 70px; right: 0; width: 350px; height: 538px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: none; overflow: hidden; border: 1px solid #e5e7eb;">
         <!-- Minimize/Maximize Button -->
         <button id="chat-toggle-size" style="position: absolute; top: 16px; right: 60px; background: rgba(0,0,0,0.1); border: none; border-radius: 6px; padding: 6px 8px; font-size: 14px; cursor: pointer; color: white; z-index: 10002; transition: background 0.2s;" title="Maximize">⛶</button>
         <!-- Header -->
@@ -314,7 +314,7 @@
     if (isMaximized) {
       // Restore to normal size (minimize)
       chatWindow.style.width = "350px";
-      chatWindow.style.height = "518px";
+      chatWindow.style.height = "538px";
       chatWindow.style.position = "absolute";
       chatWindow.style.bottom = "70px";
       chatWindow.style.right = "0";
@@ -325,7 +325,7 @@
     } else {
       // Maximize to full width
       chatWindow.style.width = "min(70vw, 800px)";
-      chatWindow.style.height = "min(80vh, 518px)";
+      chatWindow.style.height = "min(80vh, 538px)";
       chatWindow.style.position = "fixed";
       chatWindow.style.bottom = "20px";
       chatWindow.style.right = "20px";
@@ -354,7 +354,7 @@
     } else {
       // Always open in minimized (normal) state
       chatWindow.style.width = "350px";
-      chatWindow.style.height = "518px";
+      chatWindow.style.height = "538px";
       chatWindow.style.position = "absolute";
       chatWindow.style.bottom = "70px";
       chatWindow.style.right = "0";
